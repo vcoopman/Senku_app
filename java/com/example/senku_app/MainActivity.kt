@@ -208,18 +208,18 @@ class Tablero(){
         var r1 = tablero.getValue(Pair(x,y+1))
 
         var v1 = false
-
+            // v1 es verdadero cuando la casilla es válida y está ocupada por una pieza
             when (d) {
-                'N' -> {v1 = r1.first && r1.second }
+                'N' -> {v1 = r1.first && !r1.second }
 
                 'S' -> { r1 = tablero.getValue(Pair(x,y-1))
-                        v1 = r1.first && r1.second  }
+                        v1 = r1.first && !r1.second  }
 
                 'E' -> { r1 = tablero.getValue(Pair(x-1,y))
-                        v1 = r1.first && r1.second  }
+                        v1 = r1.first && !r1.second  }
 
                 else -> { r1 = tablero.getValue(Pair(x+1,y))
-                        v1 = r1.first && r1.second  }
+                        v1 = r1.first && !r1.second  }
             }
 
 
