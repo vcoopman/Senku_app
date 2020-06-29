@@ -4,14 +4,35 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+
+import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 
+
 class MainActivity : AppCompatActivity() {
+
+
+    var cantidadMovimientosRealizados: Int = 0
+    var isGameOver: Boolean = false
+    var timeToSuggest = object : CountDownTimer(10000, 1000) {
+
+        // Se muestra sugerencia al usuario
+        override fun onFinish() {
+            //mostrarSugerencia() - FALTA IMPLEMENTAR
+            Toast.makeText(applicationContext," SUGERENCIA AHORA! ", Toast.LENGTH_SHORT).show()
+        }
+
+        // No es utilizada aun
+        override fun onTick(millisUntilFinished: Long) {
+        }
+    }
 
     //Stack para guardar jugadas realizadas
     var pilaJugadas : Stack<Triple<ImageView?, ImageView, ImageView>> = Stack()
@@ -139,12 +160,13 @@ class MainActivity : AppCompatActivity() {
             Pair(f32, true)
         )
 
+
         //Arreglo de todas las fichas
         val fichas = arrayOf(
-                f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
-                f11, f12, f13, f14, f15, f16, f17, f18, f19, f20,
-                f21, f22, f23, f24, f25, f26, f27, f28, f29, f30,
-                f31, f32, f33 )
+            f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
+            f11, f12, f13, f14, f15, f16, f17, f18, f19, f20,
+            f21, f22, f23, f24, f25, f26, f27, f28, f29, f30,
+            f31, f32, f33 )
 
         // A todas las fichas se le muestra la imagen "pin" con el color de fondo
         for (i in fichas) {
@@ -189,7 +211,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-    // Cada ficha tiene un TouchListener
+        // Cada ficha tiene un TouchListener
         for (i in fichas) {
 
             i.setOnTouchListener { v, event ->
@@ -202,6 +224,9 @@ class MainActivity : AppCompatActivity() {
                             // Obtiene la ficha correspondiente la celda tocada
                             view1 = v as ImageView?
 
+                            // Inicia CountDown para sugerencia
+                            timeToSuggest.start()
+
                             // Cambia el color de fondo a rojo para destacar que está seleccionado
                             view1?.setBackgroundColor(Color.rgb(204, 0, 0))
 
@@ -213,8 +238,20 @@ class MainActivity : AppCompatActivity() {
                             // Obtiene la ficha de la celda tocada
                             view2 = v as ImageView?
 
+
+
                             // Llama a la función para ver si se come a la ficha o no
                             verMovimientos(view1, view2, movimientos, vistas)
+
+                            // Actualiza numero de movimientos en pantalla
+                            buttonPanel_button0.text = cantidadMovimientosRealizados.toString()
+
+                            // Chequea el termino del juego
+                            isGameOver = gameOver(movimientos,vistas)
+
+                            if(isGameOver){
+                                Toast.makeText(applicationContext," GAME OVER ", Toast.LENGTH_LONG).show()
+                            }
 
                             // Vuelve el color de fondo normal de las fichas
                             view1?.setBackgroundColor(Color.rgb(172, 110, 90))
@@ -233,8 +270,83 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    // Busca las fichas aun visibles en el tablero
+    fun buscarFichasVisibles(
+        vistas: MutableMap<ImageView?, Boolean?>
+    ): Map<ImageView?, Boolean?> {
+        val fichasVisibles: Map<ImageView?, Boolean?> = vistas.filter { (k,v) -> v == true }
+        return fichasVisibles
+    }
+
+    // Recoleta movimientos posibles por las fichas aun visibles
+    fun buscaMovimientosFichasVisibles(
+        Movimientos: Map<ImageView, Array<Pair<ImageView, ImageView>>>,
+        fichasVisibles: Map<ImageView?, Boolean?>
+    ): MutableMap<ImageView?, Array<Pair<ImageView, ImageView>>> {
+
+        val movimientosFichasVisibles = mutableMapOf<ImageView?, Array<Pair<ImageView, ImageView>>>()
+        val keysFichasVisibles = fichasVisibles.keys
+
+        for (key in keysFichasVisibles) {
+
+            if(Movimientos.keys.contains(key)){
+
+                // arreglo auxiliar
+                val array = Movimientos[key]
+
+                // Chequeo solicitado por android studio
+                if (array != null) {
+                    movimientosFichasVisibles[key] = array
+                }
+            }
+        }
+        return movimientosFichasVisibles
+    }
+
+    fun buscaMovimientosPosibles(
+        movimientosFichasVisibles: MutableMap<ImageView?, Array<Pair<ImageView, ImageView>>>,
+        fichasVisibles: Map<ImageView?, Boolean?>
+    ): Int{
+
+        var cantMovimientosPosibles:Int = 0
+        val listMovimientos = movimientosFichasVisibles.values.toList()
+
+        // Para cada arreglo en la lista
+        for(array in listMovimientos) {
+
+            //Para cada movimiento en cada arreglo
+            for (movimiento in array) {
+
+                // Si la ficha contigua es visible, y la ficha destino no lo es
+                if (fichasVisibles.contains(movimiento.first) && !fichasVisibles.contains(movimiento.second)) {
+
+                    //Entonces el movimiento es posible
+                    cantMovimientosPosibles++
+                }
+            }
+        }
+        return cantMovimientosPosibles
+    }
+
+
+    // Funcion para detener o continuar el juego
+    fun gameOver(Movimientos: Map<ImageView, Array<Pair<ImageView, ImageView>>>, vistas: MutableMap<ImageView?, Boolean?>): Boolean {
+        val fichasVisibles = buscarFichasVisibles(vistas)
+        val movimientosFichasVisibles = buscaMovimientosFichasVisibles(Movimientos,fichasVisibles)
+        val cantMovimientosRestantes :Int = buscaMovimientosPosibles(movimientosFichasVisibles,fichasVisibles)
+
+        // Si no quedan movimientos se acaba el juego
+        if(cantMovimientosRestantes == 0){
+            return true
+        }
+        return false
+    }
+
+
     // Esta función es la que comprueba si se hace una jugada que come a una ficha, recibe las dos fichas que se tocaron
     // El mapa con los movimientos válidos de la ficha y el mapa con los estados visibles de las fichas
+
     fun verMovimientos(
         i: ImageView?,
         f: ImageView?,
@@ -243,6 +355,8 @@ class MainActivity : AppCompatActivity() {
     ) {
         // Obtiene el arreglo de Pares con las fichas contiguas a la ficha "i"
         val arreglo = movimientos[i]
+
+
 
         // Esta condición la pide android studio para asegurarse de que no se revisa un arreglo nulo, pero como está
         // programado eso nunca ocurre
@@ -277,6 +391,8 @@ class MainActivity : AppCompatActivity() {
                     // Agrega las fichas que cambiaron su visibilidad al stack para deshacer las jugadas
                     pilaJugadas.push(Triple(i,k.first,f))
 
+                    // añade un movimiento al contador
+                    cantidadMovimientosRealizados++
                 }
             }
         }
