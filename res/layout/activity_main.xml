@@ -809,7 +809,7 @@
        android:layout_height="60dp"
        android:layout_marginBottom="0dp"
        android:orientation="horizontal"
-       app:layout_constraintBottom_toBottomOf="parent"
+       app:layout_constraintTop_toBottomOf="@+id/main"
        tools:layout_editor_absoluteX="64dp">
 
 

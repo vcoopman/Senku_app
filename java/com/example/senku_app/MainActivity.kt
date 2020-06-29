@@ -313,15 +313,20 @@ class MainActivity : AppCompatActivity() {
 
 
     // Busca las fichas aun visibles en el tablero
-    fun buscarFichasVisibles(vistas: MutableMap<ImageView, Boolean>): Map<ImageView, Boolean> {
+    fun buscarFichasVisibles(
+        vistas: MutableMap<ImageView, Boolean>
+    ): Map<ImageView, Boolean> {
         val fichasVisibles: Map<ImageView, Boolean> = vistas.filter { (k,v) -> v == true }
         return fichasVisibles
     }
 
     // Recoleta movimientos posibles por las fichas aun visibles
-    fun buscaMovimientosFichasVisibles(Movimientos: Map<ImageView, Array<Pair<ImageView, ImageView>>>, fichasVisibles: Map<ImageView, Boolean>): MutableMap<ImageView, Array<Pair<ImageView, ImageView>>> {
-        val movimientosFichasVisibles = mutableMapOf<ImageView, Array<Pair<ImageView, ImageView>>>()
+    fun buscaMovimientosFichasVisibles(
+        Movimientos: Map<ImageView, Array<Pair<ImageView, ImageView>>>,
+        fichasVisibles: Map<ImageView, Boolean>
+    ): MutableMap<ImageView, Array<Pair<ImageView, ImageView>>> {
 
+        val movimientosFichasVisibles = mutableMapOf<ImageView, Array<Pair<ImageView, ImageView>>>()
         val keysFichasVisibles = fichasVisibles.keys
 
         for (key in keysFichasVisibles) {
@@ -340,7 +345,11 @@ class MainActivity : AppCompatActivity() {
         return movimientosFichasVisibles
     }
 
-    fun buscaMovimientosPosibles( movimientosFichasVisibles :MutableMap<ImageView, Array<Pair<ImageView, ImageView>>>, fichasVisibles :Map<ImageView, Boolean>): Int{
+    fun buscaMovimientosPosibles(
+        movimientosFichasVisibles: MutableMap<ImageView, Array<Pair<ImageView, ImageView>>>,
+        fichasVisibles: Map<ImageView, Boolean>
+    ): Int{
+
         var cantMovimientosPosibles:Int = 0
         val listMovimientos = movimientosFichasVisibles.values.toList()
 
@@ -372,10 +381,8 @@ class MainActivity : AppCompatActivity() {
         if(cantMovimientosRestantes == 0){
             return true
         }
-
         return false
     }
-
 
 
     // Esta función es la que comprueba si se hace una jugada que come a una ficha, recibe las dos fichas que se tocaron
@@ -420,6 +427,7 @@ class MainActivity : AppCompatActivity() {
                     // y se hace visible la ficha "f"
                     v[f] = true
 
+                    // añade un movimiento al contador
                     cantidadMovimientosRealizados++
                 }
             }
