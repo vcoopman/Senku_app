@@ -1,4 +1,6 @@
+
 package com.example.senku_app
+
 
 import android.annotation.SuppressLint
 import android.graphics.Color
@@ -7,13 +9,18 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
+
 import android.widget.LinearLayout
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
+
 
 
 class MainActivity : AppCompatActivity() {
+
 
     var cantidadMovimientosRealizados: Int = 0
     var isGameOver: Boolean = false
@@ -30,54 +37,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //Stack para guardar jugadas realizadas
+    var pilaJugadas : Stack<Triple<ImageView?, ImageView, ImageView>> = Stack()
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //Se obtienen los LinearLayout
-
-        val v13 = findViewById<LinearLayout>(R.id.v1_3)
-        val v14 = findViewById<LinearLayout>(R.id.v1_4)
-        val v15 = findViewById<LinearLayout>(R.id.v1_5)
-
-        val v23 = findViewById<LinearLayout>(R.id.v2_3)
-        val v24 = findViewById<LinearLayout>(R.id.v2_4)
-        val v25 = findViewById<LinearLayout>(R.id.v2_5)
-
-        val v31 = findViewById<LinearLayout>(R.id.v3_1)
-        val v32 = findViewById<LinearLayout>(R.id.v3_2)
-        val v33 = findViewById<LinearLayout>(R.id.v3_3)
-        val v34 = findViewById<LinearLayout>(R.id.v3_4)
-        val v35 = findViewById<LinearLayout>(R.id.v3_5)
-        val v36 = findViewById<LinearLayout>(R.id.v3_6)
-        val v37 = findViewById<LinearLayout>(R.id.v3_7)
-
-        val v41 = findViewById<LinearLayout>(R.id.v4_1)
-        val v42 = findViewById<LinearLayout>(R.id.v4_2)
-        val v43 = findViewById<LinearLayout>(R.id.v4_3)
-        val v44 = findViewById<LinearLayout>(R.id.v4_4)
-        val v45 = findViewById<LinearLayout>(R.id.v4_5)
-        val v46 = findViewById<LinearLayout>(R.id.v4_6)
-        val v47 = findViewById<LinearLayout>(R.id.v4_7)
-
-        val v51 = findViewById<LinearLayout>(R.id.v5_1)
-        val v52 = findViewById<LinearLayout>(R.id.v5_2)
-        val v53 = findViewById<LinearLayout>(R.id.v5_3)
-        val v54 = findViewById<LinearLayout>(R.id.v5_4)
-        val v55 = findViewById<LinearLayout>(R.id.v5_5)
-        val v56 = findViewById<LinearLayout>(R.id.v5_6)
-        val v57 = findViewById<LinearLayout>(R.id.v5_7)
-
-        val v63 = findViewById<LinearLayout>(R.id.v6_3)
-        val v64 = findViewById<LinearLayout>(R.id.v6_4)
-        val v65 = findViewById<LinearLayout>(R.id.v6_5)
-
-        val v73 = findViewById<LinearLayout>(R.id.v7_3)
-        val v74 = findViewById<LinearLayout>(R.id.v7_4)
-        val v75 = findViewById<LinearLayout>(R.id.v7_5)
-
+        // Botón para deshacer jugadas
+        val des = findViewById<Button>(R.id.atras)
 
         val f1 = findViewById<ImageView>(R.id.f1)
         val f2 = findViewById<ImageView>(R.id.f2)
@@ -116,50 +85,11 @@ class MainActivity : AppCompatActivity() {
         val f32 = findViewById<ImageView>(R.id.f32)
         val f33 = findViewById<ImageView>(R.id.f33)
 
-        // Arreglo de todas las celdas
-        val celdas = arrayOf(
-            v13, v14, v15, v23, v24, v25, v31, v32, v33, v34,
-            v35, v36, v37, v41, v42, v43, v44, v45, v46, v47,
-            v51, v52, v53, v54, v55, v56, v57, v63, v64, v65,
-            v73, v74, v75
-        )
-
-        //Arreglo de todas las fichas
-        val fichas = arrayOf(
-            f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
-            f11, f12, f13, f14, f15, f16, f17, f18, f19, f20,
-            f21, f22, f23, f24, f25, f26, f27, f28, f29, f30,
-            f31, f32, f33
-        )
-
-
-        //Mapa<Celda, Ficha> que relaciona las celdas con las fichas, donde cada celda tien una ficha
-
-        val pares = mapOf(
-            Pair(v13, f1), Pair(v14, f2), Pair(v15, f3), Pair(v23, f4),
-            Pair(v24, f5), Pair(v25, f6), Pair(v31, f7), Pair(v32, f8),
-            Pair(v33, f9), Pair(v34, f10), Pair(v35, f11), Pair(v36, f12),
-            Pair(v37, f13), Pair(v41, f14), Pair(v42, f15), Pair(v43, f16),
-            Pair(v44, f33), Pair(v45, f17), Pair(v46, f18), Pair(v47, f19),
-            Pair(v51, f20), Pair(v52, f21), Pair(v53, f22), Pair(v54, f23),
-            Pair(v55, f24), Pair(v56, f25), Pair(v57, f26), Pair(v63, f27),
-            Pair(v64, f28), Pair(v65, f29), Pair(v73, f30), Pair(v74, f31),
-            Pair(v75, f32)
-        )
-
-        // A todas las fichas se le muestra la imagen "pin"
-        for (i in fichas) {
-
-            i.setImageResource(R.drawable.pin)
-        }
-
-
-        // La ficha del medio del tablero es invisible
-        f33.visibility = View.INVISIBLE
 
         // Este mapa es interesante, almacena cada ficha con todos los posibles movimientos que puede tener en el tablero.
         // La key del mapa es la ImageView correspondiente a la ficha, el value es un arreglo de pares, donde el primero elemento del par
         // Corresponde a la ficha contigua a la ficha key y el segundo elemento es la ficha a donde puede llegar la ficha si se la come.
+
         val movimientos = mapOf<ImageView, Array<Pair<ImageView, ImageView>>>(
             Pair(f1, arrayOf(Pair(f4, f9), Pair(f2, f3))),
             Pair(f2, arrayOf(Pair(f5, f10))),
@@ -197,7 +127,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         // Mapa<Ficha, Booleano> para saber si las fichas están visibles o no
-        val vistas = mutableMapOf(
+        val vistas = mutableMapOf<ImageView?, Boolean?>(
             Pair(f1, true),
             Pair(f2, true),
             Pair(f3, true),
@@ -234,6 +164,24 @@ class MainActivity : AppCompatActivity() {
         )
 
 
+        //Arreglo de todas las fichas
+        val fichas = arrayOf(
+                f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
+                f11, f12, f13, f14, f15, f16, f17, f18, f19, f20,
+                f21, f22, f23, f24, f25, f26, f27, f28, f29, f30,
+                f31, f32, f33 )
+
+        // A todas las fichas se le muestra la imagen "pin" con el color de fondo
+        for (i in fichas) {
+
+            i.setBackgroundColor(Color.rgb(172, 110, 90))
+            i.setImageResource(R.drawable.pin)
+        }
+
+        // La ficha del medio del tablero es invisible
+        f33.setImageDrawable(null)
+
+
         //Variables auxiliares para las fichas
         var view1: ImageView? = null
         var view2: ImageView? = null
@@ -241,9 +189,33 @@ class MainActivity : AppCompatActivity() {
         // Variable auxiliar para saber si se realiza el primer toque o segundo toque en el tablero
         var flag = true
 
+        // Método onClickListener del botón para deshacer jugadas
+        des.setOnClickListener(View.OnClickListener {
 
-        // Cada celda tiene un TouchListener
-        for (i in celdas) {
+            // Si hay elementos en el stack
+            if(!pilaJugadas.isNullOrEmpty()){
+
+                // Saca el elemento top del stack
+                var t = pilaJugadas.pop()
+
+                // Se cambia el estado de visibilidad de los tres elementos
+                if(t?.first != null) {
+
+                    if (vistas[t.first] != null) vistas[t.first] = vistas[t.first]?.not()
+
+                    vistas[t.second] = vistas[t.second]?.not()
+
+                    vistas[t.third] = vistas[t.third]?.not()
+
+                    // Se actualizan las visibilidades de las fichas
+                    refresh(fichas, vistas)
+                }
+
+            }
+        })
+
+    // Cada ficha tiene un TouchListener
+        for (i in fichas) {
 
             i.setOnTouchListener { v, event ->
                 when (event?.action) {
@@ -253,7 +225,7 @@ class MainActivity : AppCompatActivity() {
                         flag = if (flag) {
 
                             // Obtiene la ficha correspondiente la celda tocada
-                            view1 = pares[v]
+                            view1 = v as ImageView?
 
                             // Inicia CountDown para sugerencia
                             timeToSuggest.start()
@@ -263,11 +235,11 @@ class MainActivity : AppCompatActivity() {
 
                             // Cambia la variable flag a false
                             false
-                        // Si es el segundo toque en el tablero
+                            // Si es el segundo toque en el tablero
                         } else {
 
                             // Obtiene la ficha de la celda tocada
-                            view2 = pares[v]
+                            view2 = v as ImageView?
 
 
 
@@ -288,17 +260,7 @@ class MainActivity : AppCompatActivity() {
                             view1?.setBackgroundColor(Color.rgb(172, 110, 90))
 
                             //Actualiza visibilidad de las fichas
-                            for (j in fichas) {
-
-                                if (vistas[j] == true) {
-
-                                    j.visibility = View.VISIBLE
-
-                                } else {
-
-                                    j.visibility = View.INVISIBLE
-                                }
-                            }
+                            refresh(fichas, vistas)
 
                             // Cambia la variable flag a true
                             true
@@ -391,11 +353,11 @@ class MainActivity : AppCompatActivity() {
     fun verMovimientos(
         i: ImageView?,
         f: ImageView?,
-        m: Map<ImageView, Array<Pair<ImageView, ImageView>>>,
-        v: MutableMap<ImageView, Boolean>
+        movimientos: Map<ImageView, Array<Pair<ImageView, ImageView>>>,
+        vistas: MutableMap<ImageView?, Boolean?>
     ) {
         // Obtiene el arreglo de Pares con las fichas contiguas a la ficha "i"
-        val arreglo = m[i]
+        val arreglo = movimientos[i]
 
 
 
@@ -408,28 +370,53 @@ class MainActivity : AppCompatActivity() {
 
                 // Obtiene visibilidad de la ficha contigua a "i" Si es visible retorna true, en caso contrario false
                 // Se tiene el operador elvis en caso de que sea null, pero eso no ocurre (cosas que pide android studio)
-                val v1: Boolean = v[k.first] ?: false
+                val v1: Boolean = vistas[k.first] ?: false
 
                 // Obtiene visibilidad de la ficha contigua al ficha contigua Si es visible retorna true, en caso contrario false
                 // Acá debe ser false para que pueda comerse la ficha contigua
-                val v2: Boolean = v[f] ?: true
+                val v2: Boolean = vistas[f] ?: true
 
                 // Si la ficha contigua es visible, la contigua a esta es invisible y resulta que la ficha "f" que se tocó es igual a esta:
                 if (v1 && !v2 && f == k.second) {
 
                     // Se come la ficha contigua y "avanza" la ficha "i" a la posición de "f"
                     // Para eso se quita la visibilidad a "i"
-                    if (i != null) v[i] = false
+                    //
+                    //
+                    if (i != null) vistas[i] = false
 
                     // Se quita la visibilidad a la ficha contigua que se comió
-                    v[k.first] = false
+                    vistas[k.first] = false
 
                     // y se hace visible la ficha "f"
-                    v[f] = true
+                    vistas[f] = true
+
+                    // Agrega las fichas que cambiaron su visibilidad al stack para deshacer las jugadas
+                    pilaJugadas.push(Triple(i,k.first,f))
 
                     // añade un movimiento al contador
                     cantidadMovimientosRealizados++
                 }
+            }
+        }
+    }
+
+    // Funcion para actualizar las visibilidades de las fichas
+    fun refresh(f: Array<ImageView>, v: MutableMap<ImageView?, Boolean?>){
+
+        // Para cada ficha
+        for(i in f ){
+
+            // Si es visible se muestra la imagen
+            if(v[i] == true){
+
+                i.setImageResource(R.drawable.pin)
+            }
+
+            // Sino, no se muestra la imagen, solo el color de fondo
+            else{
+
+                i.setImageDrawable(null)
             }
         }
     }
