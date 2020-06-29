@@ -1,6 +1,4 @@
-
-package com.example.senku_app
-
+package cl.ldaravena.optiviews
 
 import android.annotation.SuppressLint
 import android.graphics.Color
@@ -12,7 +10,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 
-import android.widget.LinearLayout
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
@@ -166,10 +163,10 @@ class MainActivity : AppCompatActivity() {
 
         //Arreglo de todas las fichas
         val fichas = arrayOf(
-                f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
-                f11, f12, f13, f14, f15, f16, f17, f18, f19, f20,
-                f21, f22, f23, f24, f25, f26, f27, f28, f29, f30,
-                f31, f32, f33 )
+            f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
+            f11, f12, f13, f14, f15, f16, f17, f18, f19, f20,
+            f21, f22, f23, f24, f25, f26, f27, f28, f29, f30,
+            f31, f32, f33 )
 
         // A todas las fichas se le muestra la imagen "pin" con el color de fondo
         for (i in fichas) {
@@ -214,7 +211,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-    // Cada ficha tiene un TouchListener
+        // Cada ficha tiene un TouchListener
         for (i in fichas) {
 
             i.setOnTouchListener { v, event ->
@@ -276,19 +273,19 @@ class MainActivity : AppCompatActivity() {
 
     // Busca las fichas aun visibles en el tablero
     fun buscarFichasVisibles(
-        vistas: MutableMap<ImageView, Boolean>
-    ): Map<ImageView, Boolean> {
-        val fichasVisibles: Map<ImageView, Boolean> = vistas.filter { (k,v) -> v == true }
+        vistas: MutableMap<ImageView?, Boolean?>
+    ): Map<ImageView?, Boolean?> {
+        val fichasVisibles: Map<ImageView?, Boolean?> = vistas.filter { (k,v) -> v == true }
         return fichasVisibles
     }
 
     // Recoleta movimientos posibles por las fichas aun visibles
     fun buscaMovimientosFichasVisibles(
         Movimientos: Map<ImageView, Array<Pair<ImageView, ImageView>>>,
-        fichasVisibles: Map<ImageView, Boolean>
-    ): MutableMap<ImageView, Array<Pair<ImageView, ImageView>>> {
+        fichasVisibles: Map<ImageView?, Boolean?>
+    ): MutableMap<ImageView?, Array<Pair<ImageView, ImageView>>> {
 
-        val movimientosFichasVisibles = mutableMapOf<ImageView, Array<Pair<ImageView, ImageView>>>()
+        val movimientosFichasVisibles = mutableMapOf<ImageView?, Array<Pair<ImageView, ImageView>>>()
         val keysFichasVisibles = fichasVisibles.keys
 
         for (key in keysFichasVisibles) {
@@ -308,8 +305,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun buscaMovimientosPosibles(
-        movimientosFichasVisibles: MutableMap<ImageView, Array<Pair<ImageView, ImageView>>>,
-        fichasVisibles: Map<ImageView, Boolean>
+        movimientosFichasVisibles: MutableMap<ImageView?, Array<Pair<ImageView, ImageView>>>,
+        fichasVisibles: Map<ImageView?, Boolean?>
     ): Int{
 
         var cantMovimientosPosibles:Int = 0
@@ -334,7 +331,7 @@ class MainActivity : AppCompatActivity() {
 
 
     // Funcion para detener o continuar el juego
-    fun gameOver( Movimientos: Map<ImageView, Array<Pair<ImageView, ImageView>>>, vistas: MutableMap<ImageView, Boolean> ): Boolean {
+    fun gameOver(Movimientos: Map<ImageView, Array<Pair<ImageView, ImageView>>>, vistas: MutableMap<ImageView?, Boolean?>): Boolean {
         val fichasVisibles = buscarFichasVisibles(vistas)
         val movimientosFichasVisibles = buscaMovimientosFichasVisibles(Movimientos,fichasVisibles)
         val cantMovimientosRestantes :Int = buscaMovimientosPosibles(movimientosFichasVisibles,fichasVisibles)
