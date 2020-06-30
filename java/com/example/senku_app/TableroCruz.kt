@@ -220,6 +220,8 @@ class TableroCruz : AppCompatActivity() {
 
                     // Se actualizan las visibilidades de las fichas
                     refresh(fichas, vistas)
+
+                    play(this, go_back)
                 }
 
                 // Resta a la cantidad de movimientos realizados
@@ -246,6 +248,8 @@ class TableroCruz : AppCompatActivity() {
                             // Obtiene la ficha correspondiente la celda tocada
                             view1 = v as ImageView?
 
+                            play(this, select)
+
                             // Inicia CountDown para la sugerencia
                             timeToSuggest.start()
 
@@ -264,7 +268,7 @@ class TableroCruz : AppCompatActivity() {
                             timeToSuggest.cancel()
 
                             // Llama a la función para ver si se come a la ficha o no
-                            verMovimientos(view1, view2, movimientos, vistas, pilaJugadas)
+                            verMovimientos(view1, view2, movimientos, vistas, pilaJugadas, this)
 
                             // Quita la sugerencia de jugada
                             quitarSugerencia(viewSugerencia)
@@ -280,6 +284,8 @@ class TableroCruz : AppCompatActivity() {
 
                             if(isGameOver){
                                 Toast.makeText(applicationContext," GAME OVER ", Toast.LENGTH_LONG).show()
+
+                                play(this, game_over)
                             }
 
                             // Vuelve el color de fondo normal de las fichas
