@@ -1,4 +1,4 @@
-package cl.ldaravena.optiviews
+package com.example.senku_app
 
 import android.annotation.SuppressLint
 import android.graphics.Color
@@ -7,8 +7,10 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.MotionEvent
 import android.view.View
+import android.view.Window
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
@@ -21,18 +23,8 @@ class MainActivity : AppCompatActivity() {
 
     var cantidadMovimientosRealizados: Int = 0
     var isGameOver: Boolean = false
-    var timeToSuggest = object : CountDownTimer(10000, 1000) {
+    var puntaje: Int = 0
 
-        // Se muestra sugerencia al usuario
-        override fun onFinish() {
-            //mostrarSugerencia() - FALTA IMPLEMENTAR
-            Toast.makeText(applicationContext," SUGERENCIA AHORA! ", Toast.LENGTH_SHORT).show()
-        }
-
-        // No es utilizada aun
-        override fun onTick(millisUntilFinished: Long) {
-        }
-    }
 
     //Stack para guardar jugadas realizadas
     var pilaJugadas : Stack<Triple<ImageView?, ImageView, ImageView>> = Stack()
@@ -40,10 +32,16 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        getSupportActionBar()?.hide()
+
         setContentView(R.layout.activity_main)
 
+
         // Botón para deshacer jugadas
-        val des = findViewById<Button>(R.id.atras)
+        val des = findViewById<Button>(R.id.oneBack)
+        // Texto puntaje
+        val viewPuntaje = findViewById<TextView>(R.id.puntajeNumero)
 
         val f1 = findViewById<ImageView>(R.id.f1)
         val f2 = findViewById<ImageView>(R.id.f2)
@@ -179,9 +177,29 @@ class MainActivity : AppCompatActivity() {
         f33.setImageDrawable(null)
 
 
-        //Variables auxiliares para las fichas
+        // Variables auxiliares para las fichas
         var view1: ImageView? = null
         var view2: ImageView? = null
+
+        // Variable para almacenar la view de la sugerencia jugada
+        var viewSugerencia: ImageView? = null
+
+        // Timer para sugerencia -- Implementacion precaria
+
+        var timeToSuggest = object : CountDownTimer(5000, 1000) {
+
+            // Se muestra sugerencia al usuario
+            override fun onFinish() {
+                if(view1 != null) {
+                    viewSugerencia = mostrarSugerencia(view1!!, buscaMovimientosFichasVisibles(movimientos, buscarFichasVisibles(vistas)))
+                }
+            }
+
+            // No es utilizada
+            override fun onTick(millisUntilFinished: Long) {
+
+            }
+        }
 
         // Variable auxiliar para saber si se realiza el primer toque o segundo toque en el tablero
         var flag = true
@@ -208,6 +226,14 @@ class MainActivity : AppCompatActivity() {
                     refresh(fichas, vistas)
                 }
 
+                // Resta a la cantidad de movimientos realizados
+                --cantidadMovimientosRealizados
+                buttonPanel_button0.text = cantidadMovimientosRealizados.toString()
+
+                // Resta al puntaje
+                puntaje -= 15
+                viewPuntaje.text = puntaje.toString()
+
             }
         })
 
@@ -224,7 +250,7 @@ class MainActivity : AppCompatActivity() {
                             // Obtiene la ficha correspondiente la celda tocada
                             view1 = v as ImageView?
 
-                            // Inicia CountDown para sugerencia
+                            // Inicia CountDown para la sugerencia
                             timeToSuggest.start()
 
                             // Cambia el color de fondo a rojo para destacar que está seleccionado
@@ -238,16 +264,23 @@ class MainActivity : AppCompatActivity() {
                             // Obtiene la ficha de la celda tocada
                             view2 = v as ImageView?
 
-
+                            // Se cancela el CountDown para la sugerencia
+                            timeToSuggest.cancel()
 
                             // Llama a la función para ver si se come a la ficha o no
                             verMovimientos(view1, view2, movimientos, vistas)
 
-                            // Actualiza numero de movimientos en pantalla
-                            buttonPanel_button0.text = cantidadMovimientosRealizados.toString()
+                            // Quita la sugerencia de jugada
+                            quitarSugerencia(viewSugerencia)
 
                             // Chequea el termino del juego
                             isGameOver = gameOver(movimientos,vistas)
+
+                            // Actualiza puntaje en pantalla
+                            viewPuntaje.text = puntaje.toString()
+
+                            // Actualiza numero de movimientos en pantalla
+                            buttonPanel_button0.text = cantidadMovimientosRealizados.toString()
 
                             if(isGameOver){
                                 Toast.makeText(applicationContext," GAME OVER ", Toast.LENGTH_LONG).show()
@@ -338,6 +371,11 @@ class MainActivity : AppCompatActivity() {
 
         // Si no quedan movimientos se acaba el juego
         if(cantMovimientosRestantes == 0){
+
+            // Bonificacion especial por terminar solo con la ficha central visible
+            if(fichasVisibles.size == 1 && fichasVisibles.containsKey(f33)){
+                puntaje += 100
+            }
             return true
         }
         return false
@@ -393,6 +431,9 @@ class MainActivity : AppCompatActivity() {
 
                     // añade un movimiento al contador
                     cantidadMovimientosRealizados++
+
+                    // añade puntaje
+                    puntaje += 15
                 }
             }
         }
@@ -417,6 +458,54 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    // Muestra sugerencia de posible jugada
+    // se asume que la ficha seleccionada es una fiche visible.
+    // retorna la view seleccionada para la sugerencia
+
+    fun mostrarSugerencia(
+        fichaSelecionada: ImageView,
+        movimientosFichasVisibles: MutableMap<ImageView?, Array<Pair<ImageView, ImageView>>>
+    ): ImageView? {
+        var index: Int = 0
+        val cantidadMovimientosFicha: Int = movimientosFichasVisibles[fichaSelecionada]?.size!!
+
+        // Chequear que el movimiento es permitido
+        while( index < cantidadMovimientosFicha) {
+
+            // si la ficha contigua es visible
+            if (movimientosFichasVisibles.containsKey(
+                    movimientosFichasVisibles[fichaSelecionada]?.get(index)?.first)) {
+
+                // si la ficha destino es invisible
+                if (!movimientosFichasVisibles.containsKey(
+                        movimientosFichasVisibles[fichaSelecionada]?.get(index)?.second)) {
+
+                    // pinta amarillo el fondo de la ficha destino
+                    movimientosFichasVisibles[fichaSelecionada]?.get(index)?.second?.setBackgroundColor(
+                        Color.rgb(255, 255, 0)
+                    )
+                    return movimientosFichasVisibles[fichaSelecionada]?.get(index)?.second
+                }
+            }
+            ++index
+        }
+
+        // No quedan movimientos para la ficha
+        return null
+    }
+
+    fun quitarSugerencia(
+        fichaSelecionada: ImageView?
+    ){
+        if(fichaSelecionada == null){
+            return
+        }
+
+        fichaSelecionada.setBackgroundColor(Color.rgb(172, 110, 90))
+    }
+
+
 }
 
 
