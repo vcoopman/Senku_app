@@ -153,7 +153,8 @@ class TableroCruz : AppCompatActivity() {
             Pair(f31, true),
             Pair(f32, true)
         )
-        
+
+
         //Arreglo de todas las fichas
         val fichas = arrayOf(
             f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
@@ -269,7 +270,7 @@ class TableroCruz : AppCompatActivity() {
                             quitarSugerencia(viewSugerencia)
 
                             // Chequea el termino del juego
-                            isGameOver = gameOver(movimientos,vistas, f33)
+                            isGameOver = gameOver(movimientos,vistas, view2)
 
                             // Actualiza puntaje en pantalla
                             viewPuntaje.text = puntaje.toString()
