@@ -212,7 +212,7 @@ class TableroPiramide : AppCompatActivity() {
                             quitarSugerencia(viewSugerencia)
 
                             // Chequea el termino del juego
-                            isGameOver = gameOver(movimientos,vistas, view2)
+                            isGameOver = gameOver(movimientos,vistas, f1)
 
                             // Actualiza puntaje en pantalla
                             viewPuntaje.text = puntaje.toString()
