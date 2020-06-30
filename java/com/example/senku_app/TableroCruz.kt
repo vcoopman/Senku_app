@@ -270,7 +270,7 @@ class TableroCruz : AppCompatActivity() {
                             quitarSugerencia(viewSugerencia)
 
                             // Chequea el termino del juego
-                            isGameOver = gameOver(movimientos,vistas, view2)
+                            isGameOver = gameOver(movimientos,vistas, f33)
 
                             // Actualiza puntaje en pantalla
                             viewPuntaje.text = puntaje.toString()
