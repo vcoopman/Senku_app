@@ -10,14 +10,38 @@
 
 
     <Button
-        android:id="@+id/atras"
-
+        android:id="@+id/oneBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Deshacer"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/main" />
+
+    <TextView
+        android:id="@+id/puntajeTitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:textSize="30sp"
+        android:text="Puntaje"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/puntajeNumero"
+        />
+    <TextView
+        android:id="@+id/puntajeNumero"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:textSize="30sp"
+        android:text="0"
+        app:layout_constraintTop_toBottomOf="@+id/puntajeTitulo"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/main"
+        />
 
 
     <RelativeLayout
@@ -476,7 +500,10 @@
           android:background="#FFFFFF"
           android:text="0"
           android:textSize="30sp" />
-
    </LinearLayout>
+
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
