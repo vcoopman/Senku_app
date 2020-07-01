@@ -17,6 +17,8 @@ import java.util.*
 
 class TableroPiramide : AppCompatActivity() {
 
+    var vistas = mutableMapOf<ImageView?, Boolean?>()
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,7 +81,7 @@ class TableroPiramide : AppCompatActivity() {
         )
 
         // Mapa<Ficha, Booleano> para saber si las fichas están visibles o no
-        val vistas = mutableMapOf<ImageView?, Boolean?>(
+        vistas = mutableMapOf<ImageView?, Boolean?>(
             Pair(ff1, false),
             Pair(ff2, true),
             Pair(ff3, true),
@@ -240,6 +242,45 @@ class TableroPiramide : AppCompatActivity() {
                 v?.onTouchEvent(event) ?: true
             }
         }
+        // Cargar variables guardadas
+        if (savedInstanceState != null) {
+            cantidadMovimientosRealizados = savedInstanceState.getInt("cantidadMovimientosRealizados")
+            puntaje = savedInstanceState.getInt("puntaje")
+
+            // Actualiza puntaje en pantalla
+            viewPuntaje.text = puntaje.toString()
+
+            // Actualiza numero de movimientos en pantalla
+            buttonPanel_button0p.text = cantidadMovimientosRealizados.toString()
+
+            isGameOver = savedInstanceState.getBoolean("isGameOver")
+
+            if(isGameOver){
+                Toast.makeText(applicationContext," GAME OVER ", Toast.LENGTH_LONG).show()
+            }
+            var i: Int = 0
+            for(key in vistas.keys){
+                vistas[key] = savedInstanceState.getBoolean(i.toString())
+                ++i
+            }
+            refresh(fichas, vistas)
+        }
+
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+
+        var i: Int = 0
+        for(entry in vistas.entries){
+            outState.putBoolean(i.toString(), entry.value!!)
+            ++i
+        }
+
+        outState.putInt("cantidadMovimientosRealizados", cantidadMovimientosRealizados)
+        outState.putInt("puntaje", puntaje)
+        outState.putBoolean("isGameOver", isGameOver)
+
+        super.onSaveInstanceState(outState)
     }
 }
 
