@@ -1,8 +1,15 @@
 package com.example.senku_app
 
+import android.content.Context
 import android.graphics.Color
+import android.media.MediaPlayer
 import android.widget.ImageView
 import java.util.*
+
+val eat_ficha = R.raw.eat_ficha
+val select = R.raw.click
+val go_back = R.raw.go_back
+val game_over = R.raw.game_over
 
 var cantidadMovimientosRealizados: Int = 0
 var isGameOver: Boolean = false
@@ -94,7 +101,8 @@ fun verMovimientos(
     f: ImageView?,
     movimientos: Map<ImageView, Array<Pair<ImageView, ImageView>>>,
     vistas: MutableMap<ImageView?, Boolean?>,
-    pilaJugadas : Stack<Triple<ImageView?, ImageView, ImageView>>
+    pilaJugadas : Stack<Triple<ImageView?, ImageView, ImageView>>,
+    c: Context
 ) {
     // Obtiene el arreglo de Pares con las fichas contiguas a la ficha "i"
     val arreglo = movimientos[i]
@@ -133,6 +141,8 @@ fun verMovimientos(
 
                 // Agrega las fichas que cambiaron su visibilidad al stack para deshacer las jugadas
                 pilaJugadas.push(Triple(i,k.first,f))
+
+                play(c, eat_ficha)
 
                 // añade un movimiento al contador
                 cantidadMovimientosRealizados++
@@ -215,4 +225,11 @@ fun resetValores(){
     cantidadMovimientosRealizados = 0
     isGameOver = false
     puntaje = 0
+}
+
+fun play(c: Context, p : Int) {
+
+    val mp = MediaPlayer.create(c, p)
+    mp.start()
+    mp.setOnCompletionListener { mp -> mp?.release() }
 }
