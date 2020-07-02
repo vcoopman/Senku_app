@@ -105,9 +105,12 @@ fun gameOver(Movimientos: Map<ImageView, Array<Pair<ImageView, ImageView>>>, vis
 
         }
 
-        Toast.makeText(context," GAME OVER ", Toast.LENGTH_LONG).show()
+        else {
 
-        return true
+            Toast.makeText(context," GAME OVER ", Toast.LENGTH_LONG).show()
+
+            return true
+        }
     }
     return false
 }
