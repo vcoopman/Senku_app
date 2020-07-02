@@ -2,9 +2,11 @@ package com.example.senku_app
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.Window
@@ -15,24 +17,24 @@ import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_tablero_cruz.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class TableroCruz : AppCompatActivity() {
 
+    var vistas = mutableMapOf<ImageView?, Boolean?>()
+    var pilaJugadas : Stack<Triple<ImageView?, ImageView, ImageView>> = Stack()
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        resetValores()
+       // resetValores()
 
         this.requestWindowFeature(Window.FEATURE_NO_TITLE)
         getSupportActionBar()?.hide()
 
         setContentView(R.layout.activity_tablero_cruz)
-
-        //Stack para guardar jugadas realizadas
-        var pilaJugadas : Stack<Triple<ImageView?, ImageView, ImageView>> = Stack()
 
         // Botón para deshacer jugadas
         val des = findViewById<Button>(R.id.oneBack)
@@ -77,6 +79,7 @@ class TableroCruz : AppCompatActivity() {
         val f33 = findViewById<ImageView>(R.id.f33)
 
 
+
         // Este mapa es interesante, almacena cada ficha con todos los posibles movimientos que puede tener en el tablero.
         // La key del mapa es la ImageView correspondiente a la ficha, el value es un arreglo de pares, donde el primero elemento del par
         // Corresponde a la ficha contigua a la ficha key y el segundo elemento es la ficha a donde puede llegar la ficha si se la come.
@@ -117,43 +120,43 @@ class TableroCruz : AppCompatActivity() {
             Pair(f32, arrayOf(Pair(f31, f30), Pair(f29, f24)))
         )
 
-        // Mapa<Ficha, Booleano> para saber si las fichas están visibles o no
-        val vistas = mutableMapOf<ImageView?, Boolean?>(
-            Pair(f1, true),
-            Pair(f2, true),
-            Pair(f3, true),
-            Pair(f4, true),
-            Pair(f5, true),
-            Pair(f6, true),
-            Pair(f7, true),
-            Pair(f8, true),
-            Pair(f9, true),
-            Pair(f10, true),
-            Pair(f11, true),
-            Pair(f12, true),
-            Pair(f13, true),
-            Pair(f14, true),
-            Pair(f15, true),
-            Pair(f16, true),
-            Pair(f33, false),
-            Pair(f17, true),
-            Pair(f18, true),
-            Pair(f19, true),
-            Pair(f20, true),
-            Pair(f21, true),
-            Pair(f22, true),
-            Pair(f23, true),
-            Pair(f24, true),
-            Pair(f25, true),
-            Pair(f26, true),
-            Pair(f27, true),
-            Pair(f28, true),
-            Pair(f29, true),
-            Pair(f30, true),
-            Pair(f31, true),
-            Pair(f32, true)
-        )
 
+        // Mapa<Ficha, Booleano> para saber si las fichas están visibles o no
+        vistas = mutableMapOf<ImageView?, Boolean?>(
+                Pair(f1, true),
+                Pair(f2, true),
+                Pair(f3, true),
+                Pair(f4, true),
+                Pair(f5, true),
+                Pair(f6, true),
+                Pair(f7, true),
+                Pair(f8, true),
+                Pair(f9, true),
+                Pair(f10, true),
+                Pair(f11, true),
+                Pair(f12, true),
+                Pair(f13, true),
+                Pair(f14, true),
+                Pair(f15, true),
+                Pair(f16, true),
+                Pair(f33, false),
+                Pair(f17, true),
+                Pair(f18, true),
+                Pair(f19, true),
+                Pair(f20, true),
+                Pair(f21, true),
+                Pair(f22, true),
+                Pair(f23, true),
+                Pair(f24, true),
+                Pair(f25, true),
+                Pair(f26, true),
+                Pair(f27, true),
+                Pair(f28, true),
+                Pair(f29, true),
+                Pair(f30, true),
+                Pair(f31, true),
+                Pair(f32, true)
+            )
 
         //Arreglo de todas las fichas
         val fichas = arrayOf(
@@ -162,15 +165,13 @@ class TableroCruz : AppCompatActivity() {
             f21, f22, f23, f24, f25, f26, f27, f28, f29, f30,
             f31, f32, f33 )
 
+
         // A todas las fichas se le muestra la imagen "pin" con el color de fondo
         for (i in fichas) {
 
             i.setBackgroundColor(Color.rgb(172, 110, 90))
-            i.setImageResource(R.drawable.red_ball)
+            refresh(fichas,vistas)
         }
-
-        // La ficha del medio del tablero es invisible
-        f33.setImageDrawable(null)
 
 
         // Variables auxiliares para las fichas
@@ -182,7 +183,7 @@ class TableroCruz : AppCompatActivity() {
 
         // Timer para sugerencia -- Implementacion precaria
 
-        var timeToSuggest = object : CountDownTimer(5000, 1000) {
+        val timeToSuggest = object : CountDownTimer(5000, 1000) {
 
             // Se muestra sugerencia al usuario
             override fun onFinish() {
@@ -207,7 +208,7 @@ class TableroCruz : AppCompatActivity() {
             if(!pilaJugadas.isNullOrEmpty()){
 
                 // Saca el elemento top del stack
-                var t = pilaJugadas.pop()
+                val t = pilaJugadas.pop()
 
                 // Se cambia el estado de visibilidad de los tres elementos
                 if(t?.first != null) {
@@ -303,5 +304,90 @@ class TableroCruz : AppCompatActivity() {
                 v?.onTouchEvent(event) ?: true
             }
         }
+
+        // Cargar variables guardadas
+        if (savedInstanceState != null) {
+            cantidadMovimientosRealizados = savedInstanceState.getInt("cantidadMovimientosRealizados")
+            puntaje = savedInstanceState.getInt("puntaje")
+
+            // Actualiza puntaje en pantalla
+            viewPuntaje.text = puntaje.toString()
+
+            // Actualiza numero de movimientos en pantalla
+            buttonPanel_button0.text = cantidadMovimientosRealizados.toString()
+
+            isGameOver = savedInstanceState.getBoolean("isGameOver")
+
+            if(isGameOver){
+                Toast.makeText(applicationContext," GAME OVER ", Toast.LENGTH_LONG).show()
+            }
+            var i: Int = 0
+            for(key in vistas.keys){
+//                Log.i("HERE","===========LEYENDO==============")
+//                Log.i("HERE", i.toString())
+//                Log.i("KEY ===>", key.toString() )
+//                Log.i("VALOR ===>", savedInstanceState.getBoolean(key.toString()).toString())
+                vistas[key] = savedInstanceState.getBoolean(i.toString())
+                ++i
+            }
+
+            refresh(fichas, vistas)
+
+//          INTENTO DE SOLUCION A GUARDAR JUGADAS REALIZADAS (FIX ME)
+//
+//            var listJugadas = savedInstanceState.getIntegerArrayList("listJugadas")
+//            i = 0
+//            if (listJugadas != null && pilaJugadas.size == 0) {
+//                while(i < listJugadas.size){
+//                    pilaJugadas.push(Triple(findViewById(listJugadas[i]),findViewById(listJugadas[i+1]),findViewById(listJugadas[i+2])))
+//                    i+=3
+//                }
+//            }
+        }
+
+    }
+
+    // Funcion llamada al ser destruida la actividad, en outState se guardan variables a ser
+    // utilizadas en la siguiente creacion de la actividad.
+
+    override fun onSaveInstanceState(outState: Bundle) {
+
+        var i: Int = 0
+        for(entry in vistas.entries){
+//            Log.i("HERE","==========GUARDANDO===============")
+//            Log.i("HERE", i.toString())
+//            Log.i("KEY ===>", entry.key.toString() )
+//            Log.i("VALUE ===>", entry.value.toString())
+            outState.putBoolean(i.toString(), entry.value!!)
+            ++i
+        }
+
+
+        // Intero de solucion a guardar jugadas realizadas (FIX ME)
+       /* val pilaJugadasAux: Stack<Triple<ImageView?, ImageView, ImageView>> = Stack()
+
+        // Dar vuelta el stack
+        while(!pilaJugadas.isEmpty()){
+            pilaJugadasAux.push(pilaJugadas.pop())
+        }
+
+        var auxTripe = Triple<ImageView?, ImageView?, ImageView?>(null,null,null)
+        var listJugadas =  ArrayList<Int>()
+
+        while(!pilaJugadasAux.isEmpty()){
+            auxTripe = pilaJugadasAux.pop()
+            listJugadas.add(auxTripe.first?.id!!)
+            listJugadas.add(auxTripe.second?.id!!)
+            listJugadas.add(auxTripe.third?.id!!)
+        }
+
+        outState.putIntegerArrayList("listJugadas",listJugadas)*/
+
+
+        outState.putInt("cantidadMovimientosRealizados", cantidadMovimientosRealizados)
+        outState.putInt("puntaje", puntaje)
+        outState.putBoolean("isGameOver", isGameOver)
+
+        super.onSaveInstanceState(outState)
     }
 }
