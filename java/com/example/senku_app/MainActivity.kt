@@ -21,14 +21,23 @@ class MainActivity : AppCompatActivity() {
 
     fun tableroCruz(view: View){
 
+
+        resetValores()
+
         val i = Intent(this, TableroCruz::class.java)
         startActivity(i)
+
+        play(this, R.raw.start)
     }
 
     fun tableroPiramide(view: View){
 
+        resetValores()
+
         val i = Intent(this, TableroPiramide::class.java)
         startActivity(i)
+
+        play(this, R.raw.start)
     }
 }
 

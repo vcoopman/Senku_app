@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.media.MediaPlayer
 import android.widget.ImageView
+import android.widget.Toast
 import java.util.*
 
 val eat_ficha = R.raw.eat_ficha
@@ -14,6 +15,8 @@ val game_over = R.raw.game_over
 var cantidadMovimientosRealizados: Int = 0
 var isGameOver: Boolean = false
 var puntaje: Int = 0
+
+val colorFondo = Color.rgb(180, 180, 180)
 
 // Busca las fichas aun visibles en el tablero
 fun buscarFichasVisibles(
@@ -75,7 +78,7 @@ fun buscaMovimientosPosibles(
 
 
 // Funcion para detener o continuar el juego
-fun gameOver(Movimientos: Map<ImageView, Array<Pair<ImageView, ImageView>>>, vistas: MutableMap<ImageView?, Boolean?>, ficha: ImageView?): Boolean {
+fun gameOver(Movimientos: Map<ImageView, Array<Pair<ImageView, ImageView>>>, vistas: MutableMap<ImageView?, Boolean?>, ficha: ImageView?, context: Context): Boolean {
     val fichasVisibles = buscarFichasVisibles(vistas)
     val movimientosFichasVisibles = buscaMovimientosFichasVisibles(Movimientos,fichasVisibles)
     val cantMovimientosRestantes :Int = buscaMovimientosPosibles(movimientosFichasVisibles,fichasVisibles)
@@ -85,8 +88,25 @@ fun gameOver(Movimientos: Map<ImageView, Array<Pair<ImageView, ImageView>>>, vis
 
         // Bonificacion especial por terminar solo con la ficha central visible
         if(fichasVisibles.size == 1 && fichasVisibles.containsKey(ficha)){
+
             puntaje += 100
+
+            Toast.makeText(context," GANASTE CON BONUS ", Toast.LENGTH_LONG).show()
+
+            play(context, R.raw.super_win)
+
         }
+
+        else if(fichasVisibles.size == 1){
+
+            Toast.makeText(context," GANASTE", Toast.LENGTH_LONG).show()
+
+            play(context, R.raw.win)
+
+        }
+
+        Toast.makeText(context," GAME OVER ", Toast.LENGTH_LONG).show()
+
         return true
     }
     return false
@@ -217,7 +237,7 @@ fun quitarSugerencia(
         return
     }
 
-    fichaSelecionada.setBackgroundColor(Color.rgb(172, 110, 90))
+    fichaSelecionada.setBackgroundColor(colorFondo)
 }
 
 fun resetValores(){
@@ -225,6 +245,7 @@ fun resetValores(){
     cantidadMovimientosRealizados = 0
     isGameOver = false
     puntaje = 0
+
 }
 
 fun play(c: Context, p : Int) {
