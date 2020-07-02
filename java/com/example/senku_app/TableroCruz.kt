@@ -2,23 +2,15 @@ package com.example.senku_app
 
 import android.annotation.SuppressLint
 import android.graphics.Color
-import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.Window
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-
-import android.widget.Toast
+import android.widget.*
 import kotlinx.android.synthetic.main.activity_tablero_cruz.*
 import java.util.*
-import kotlin.collections.ArrayList
-
 
 class TableroCruz : AppCompatActivity() {
 
@@ -29,17 +21,18 @@ class TableroCruz : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-       // resetValores()
-
         this.requestWindowFeature(Window.FEATURE_NO_TITLE)
         getSupportActionBar()?.hide()
 
         setContentView(R.layout.activity_tablero_cruz)
 
         // Botón para deshacer jugadas
-        val des = findViewById<Button>(R.id.oneBack)
+        val des = findViewById<ImageButton>(R.id.oneBack)
+
         // Texto puntaje
         val viewPuntaje = findViewById<TextView>(R.id.puntajeNumero)
+
+        val reset = findViewById<ImageButton>(R.id.reset)
 
         val f1 = findViewById<ImageView>(R.id.f1)
         val f2 = findViewById<ImageView>(R.id.f2)
@@ -169,10 +162,9 @@ class TableroCruz : AppCompatActivity() {
         // A todas las fichas se le muestra la imagen "pin" con el color de fondo
         for (i in fichas) {
 
-            i.setBackgroundColor(Color.rgb(172, 110, 90))
+            i.setBackgroundColor(colorFondo)
             refresh(fichas,vistas)
         }
-
 
         // Variables auxiliares para las fichas
         var view1: ImageView? = null
@@ -227,13 +219,32 @@ class TableroCruz : AppCompatActivity() {
 
                 // Resta a la cantidad de movimientos realizados
                 --cantidadMovimientosRealizados
-                buttonPanel_button0.text = cantidadMovimientosRealizados.toString()
+                movimientosNumero.text = cantidadMovimientosRealizados.toString()
 
                 // Resta al puntaje
                 puntaje -= 15
                 viewPuntaje.text = puntaje.toString()
 
             }
+        })
+
+        reset.setOnClickListener(View.OnClickListener {
+            for(i in vistas.keys){
+                vistas[i] = true
+            }
+
+            vistas[f33] = false
+
+            pilaJugadas.clear()
+
+            resetValores()
+
+            viewPuntaje.text = puntaje.toString()
+            movimientosNumero.text = cantidadMovimientosRealizados.toString()
+
+            refresh(fichas, vistas)
+
+            play(this, R.raw.start)
         })
 
         // Cada ficha tiene un TouchListener
@@ -275,22 +286,21 @@ class TableroCruz : AppCompatActivity() {
                             quitarSugerencia(viewSugerencia)
 
                             // Chequea el termino del juego
-                            isGameOver = gameOver(movimientos,vistas, f33)
+                            isGameOver = gameOver(movimientos,vistas, f33, this)
 
                             // Actualiza puntaje en pantalla
                             viewPuntaje.text = puntaje.toString()
 
                             // Actualiza numero de movimientos en pantalla
-                            buttonPanel_button0.text = cantidadMovimientosRealizados.toString()
+                            movimientosNumero.text = cantidadMovimientosRealizados.toString()
 
                             if(isGameOver){
-                                Toast.makeText(applicationContext," GAME OVER ", Toast.LENGTH_LONG).show()
 
                                 play(this, game_over)
                             }
 
                             // Vuelve el color de fondo normal de las fichas
-                            view1?.setBackgroundColor(Color.rgb(172, 110, 90))
+                            view1?.setBackgroundColor(colorFondo)
 
                             //Actualiza visibilidad de las fichas
                             refresh(fichas, vistas)
@@ -314,7 +324,7 @@ class TableroCruz : AppCompatActivity() {
             viewPuntaje.text = puntaje.toString()
 
             // Actualiza numero de movimientos en pantalla
-            buttonPanel_button0.text = cantidadMovimientosRealizados.toString()
+            movimientosNumero.text = cantidadMovimientosRealizados.toString()
 
             isGameOver = savedInstanceState.getBoolean("isGameOver")
 

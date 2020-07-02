@@ -8,36 +8,31 @@ import android.os.CountDownTimer
 import android.view.MotionEvent
 import android.view.View
 import android.view.Window
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import kotlinx.android.synthetic.main.activity_tablero_piramide.*
 import java.util.*
 
 class TableroPiramide : AppCompatActivity() {
 
     var vistas = mutableMapOf<ImageView?, Boolean?>()
-
+    //Stack para guardar jugadas realizadas
+    var pilaJugadas : Stack<Triple<ImageView?, ImageView, ImageView>> = Stack()
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        resetValores()
 
         this.requestWindowFeature(Window.FEATURE_NO_TITLE)
         getSupportActionBar()?.hide()
 
         setContentView(R.layout.activity_tablero_piramide)
 
-        //Stack para guardar jugadas realizadas
-        var pilaJugadas : Stack<Triple<ImageView?, ImageView, ImageView>> = Stack()
-
         // Botón para deshacer jugadas
-        val des = findViewById<Button>(R.id.oneBackp)
+        val des = findViewById<ImageButton>(R.id.oneBackp)
         // Texto puntaje
         val viewPuntaje = findViewById<TextView>(R.id.puntajeNumerop)
+
+        val reset = findViewById<ImageButton>(R.id.resetp)
 
         val ff1 = findViewById<ImageView>(R.id.ff1)
         val ff2 = findViewById<ImageView>(R.id.ff2)
@@ -109,13 +104,9 @@ class TableroPiramide : AppCompatActivity() {
         // A todas las fichas se le muestra la imagen "pin" con el color de fondo
         for (i in fichas) {
 
-            i.setBackgroundColor(Color.rgb(172, 110, 90))
-            i.setImageResource(R.drawable.red_ball)
+            i.setBackgroundColor(colorFondo)
+            refresh(fichas,vistas)
         }
-
-        // La primera ficha del tablero es invisible
-        ff1.setImageDrawable(null)
-
 
         //Variables auxiliares para las fichas
         var view1: ImageView? = null
@@ -170,13 +161,32 @@ class TableroPiramide : AppCompatActivity() {
 
                 // Resta a la cantidad de movimientos realizados
                 --cantidadMovimientosRealizados
-                buttonPanel_button0p.text = cantidadMovimientosRealizados.toString()
+                movimientosNumerop.text = cantidadMovimientosRealizados.toString()
 
                 // Resta al puntaje
                 puntaje -= 15
                 viewPuntaje.text = puntaje.toString()
 
             }
+        })
+
+        reset.setOnClickListener(View.OnClickListener {
+            for(i in vistas.keys){
+                vistas[i] = true
+            }
+
+            vistas[ff1] = false
+
+            pilaJugadas.clear()
+
+            resetValores()
+
+            viewPuntaje.text = puntaje.toString()
+            movimientosNumerop.text = cantidadMovimientosRealizados.toString()
+
+            refresh(fichas, vistas)
+
+            play(this, R.raw.start)
         })
 
         // Cada ficha tiene un TouchListener
@@ -218,23 +228,22 @@ class TableroPiramide : AppCompatActivity() {
                             quitarSugerencia(viewSugerencia)
 
                             // Chequea el termino del juego
-                            isGameOver = gameOver(movimientos,vistas, ff1)
+                            isGameOver = gameOver(movimientos,vistas, ff1, this)
 
                             // Actualiza puntaje en pantalla
                             viewPuntaje.text = puntaje.toString()
 
                             // Actualiza numero de movimientos en pantalla
-                            buttonPanel_button0p.text = cantidadMovimientosRealizados.toString()
+                            movimientosNumerop.text = cantidadMovimientosRealizados.toString()
 
 
                             if(isGameOver){
-                                Toast.makeText(applicationContext," GAME OVER ", Toast.LENGTH_LONG).show()
 
                                 play(this, game_over)
                             }
 
                             // Vuelve el color de fondo normal de las fichas
-                            view1?.setBackgroundColor(Color.rgb(172, 110, 90))
+                            view1?.setBackgroundColor(colorFondo)
 
                             //Actualiza visibilidad de las fichas
                             refresh(fichas, vistas)
@@ -257,7 +266,7 @@ class TableroPiramide : AppCompatActivity() {
             viewPuntaje.text = puntaje.toString()
 
             // Actualiza numero de movimientos en pantalla
-            buttonPanel_button0p.text = cantidadMovimientosRealizados.toString()
+            movimientosNumerop.text = cantidadMovimientosRealizados.toString()
 
             isGameOver = savedInstanceState.getBoolean("isGameOver")
 
