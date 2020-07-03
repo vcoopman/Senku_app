@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Senku app</string>
+    <string name="instruccionesUno">Al inicio del juego estan todos los espacios ocupados, excepto uno. Debes mover una pieza por vez, para esto debes pinchar una
+        y luego un espacio vacio que se encuentre a una pieza de distancia, esto contará como un salto. La pieza entre la pieza pinchada y
+        el espacio vacio es comida, haciendo esto obtienes puntos!
+
+        El Objetivo del juego es eliminar todas las piezas, dejando solo una en el tablero. Recibiras puntos extras si la ultima ficha en el tablero
+        se encuentra donde originalmente se encontraba el espacio vacio inicial. Tú puedes!
+
+        Si te equivocas puedes volver una jugada atras, pero cuidado! No podras volver más de una.
+
+        Puedes volver a empezar cuando quieras, solo pincha el boton de reset.
+
+        Buena suerte!
+    </string>
 </resources>
