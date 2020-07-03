@@ -280,8 +280,8 @@ class TableroCruz : AppCompatActivity() {
                                 return@setOnTouchListener true
                             }
 
-                            //MOMENTANEO
-                            //play(this, select)
+                            
+                            play(this, select)
 
                             // Inicia CountDown para la sugerencia
                             timeToSuggest.start()
