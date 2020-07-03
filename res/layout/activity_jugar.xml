@@ -27,7 +27,7 @@
         android:id="@+id/cruz"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="5dp"
         android:onClick="tableroCruz"
         android:src="@drawable/cruz_imagen"
         app:layout_constraintBottom_toTopOf="@id/piramide"
