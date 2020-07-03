@@ -124,9 +124,9 @@ fun verMovimientos(
     f: ImageView?,
     movimientos: Map<ImageView, Array<Pair<ImageView, ImageView>>>,
     vistas: MutableMap<ImageView?, Boolean?>,
-    pilaJugadas : Stack<Triple<ImageView?, ImageView, ImageView>>,
+    pilaJugadas : Stack<ImageView>,
     c: Context
-) {
+): Boolean {
     // Obtiene el arreglo de Pares con las fichas contiguas a la ficha "i"
     val arreglo = movimientos[i]
 
@@ -152,8 +152,6 @@ fun verMovimientos(
 
                 // Se come la ficha contigua y "avanza" la ficha "i" a la posición de "f"
                 // Para eso se quita la visibilidad a "i"
-                //
-                //
                 if (i != null) vistas[i] = false
 
                 // Se quita la visibilidad a la ficha contigua que se comió
@@ -162,8 +160,12 @@ fun verMovimientos(
                 // y se hace visible la ficha "f"
                 vistas[f] = true
 
+
+
                 // Agrega las fichas que cambiaron su visibilidad al stack para deshacer las jugadas
-                pilaJugadas.push(Triple(i,k.first,f))
+                pilaJugadas.push(i)
+                pilaJugadas.push(k.first)
+                pilaJugadas.push(f)
 
                 play(c, eat_ficha)
 
@@ -172,9 +174,12 @@ fun verMovimientos(
 
                 // añade puntaje
                 puntaje += 15
+
+                return true
             }
         }
     }
+    return false
 }
 
 // Funcion para actualizar las visibilidades de las fichas

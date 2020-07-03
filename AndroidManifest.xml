@@ -9,7 +9,10 @@
         android:roundIcon="@mipmap/ic_senku_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".TableroPiramide"></activity>
+        <activity android:name=".Creditos"/>
+        <activity android:name=".Ayuda" />
+        <activity android:name=".Jugar" />
+        <activity android:name=".TableroPiramide" />
         <activity android:name=".TableroCruz" />
         <activity android:name=".MainActivity">
             <intent-filter>

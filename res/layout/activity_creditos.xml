@@ -4,55 +4,58 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center"
     android:background="#857878"
-    tools:context=".MainActivity"
-    tools:ignore="RtlCompat">
+    tools:context=".Creditos">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="SENKU APP"
+        android:text="Creditos"
         android:textAlignment="center"
         android:textSize="60sp"
         android:textColor="#FFAA00"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/botonJugar"
-        android:layout_width="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center_horizontal" />
+    <TextView
+        android:id="@+id/creadoresTexto"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="lanzaJugar"
-        android:text="JUGAR"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="Creadores:"
+        android:textSize="20sp"
+        android:textAlignment="center"
+        android:gravity="center_horizontal"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.3" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.2"
+        />
 
-    <Button
-        android:id="@+id/botonAyuda"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/leoTexto"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="lanzaAyuda"
-        android:text="AYUDA"
+        android:text="Leonardo Aravena"
+        android:textSize="20sp"
+        android:textAlignment="center"
+        android:gravity="center_horizontal"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/botonJugar"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintTop_toBottomOf="@id/creadoresTexto"
+        />
 
-    <Button
-        android:id="@+id/botonCreditos"
-        android:layout_width="wrap_content"
+    <TextView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="lanzaCreditos"
-        android:text="CREDITOS"
+        android:text="Vicente Coopman"
+        android:textSize="20sp"
+        android:textAlignment="center"
+        android:gravity="center_horizontal"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/botonAyuda"
-        app:layout_constraintVertical_chainStyle="packed" />
-
+        app:layout_constraintTop_toBottomOf="@id/leoTexto"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

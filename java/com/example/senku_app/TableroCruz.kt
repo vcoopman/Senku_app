@@ -15,7 +15,10 @@ import java.util.*
 class TableroCruz : AppCompatActivity() {
 
     var vistas = mutableMapOf<ImageView?, Boolean?>()
-    var pilaJugadas : Stack<Triple<ImageView?, ImageView, ImageView>> = Stack()
+    var pilaJugadas : Stack<ImageView> = Stack()
+
+    // Flag retroceso jugada
+    var puedeVolver: Boolean = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -161,7 +164,6 @@ class TableroCruz : AppCompatActivity() {
 
         // A todas las fichas se le muestra la imagen "pin" con el color de fondo
         for (i in fichas) {
-
             i.setBackgroundColor(colorFondo)
             refresh(fichas,vistas)
         }
@@ -173,7 +175,7 @@ class TableroCruz : AppCompatActivity() {
         // Variable para almacenar la view de la sugerencia jugada
         var viewSugerencia: ImageView? = null
 
-        // Timer para sugerencia -- Implementacion precaria
+        // Timer para sugerencia
 
         val timeToSuggest = object : CountDownTimer(5000, 1000) {
 
@@ -183,11 +185,8 @@ class TableroCruz : AppCompatActivity() {
                     viewSugerencia = mostrarSugerencia(view1!!, buscaMovimientosFichasVisibles(movimientos, buscarFichasVisibles(vistas)))
                 }
             }
-
             // No es utilizada
-            override fun onTick(millisUntilFinished: Long) {
-
-            }
+            override fun onTick(millisUntilFinished: Long) {}
         }
 
         // Variable auxiliar para saber si se realiza el primer toque o segundo toque en el tablero
@@ -195,38 +194,54 @@ class TableroCruz : AppCompatActivity() {
 
         // Método onClickListener del botón para deshacer jugadas
         des.setOnClickListener(View.OnClickListener {
+            if(puedeVolver) {
+                var count = 3
+                // Si hay elementos en el stack
+                if (!pilaJugadas.isEmpty()) {
+                    while (count > 0) {
 
-            // Si hay elementos en el stack
-            if(!pilaJugadas.isNullOrEmpty()){
+                        // Saca el elemento top del stack y se le cambia la visibilidad
+                        val t = pilaJugadas.pop()
+                        if (vistas.containsKey(t)) {
+                            if (vistas[t] == true) {
+                                vistas[t] = false
+                            } else if (vistas[t] == false) {
+                                vistas[t] = true
+                            }
 
-                // Saca el elemento top del stack
-                val t = pilaJugadas.pop()
+                        }
+                        --count
+                    }
 
-                // Se cambia el estado de visibilidad de los tres elementos
-                if(t?.first != null) {
+                    // Vacia el stack, deberia ayudar al rendimiento
+                    while (!pilaJugadas.isEmpty()) {
+                        pilaJugadas.pop()
+                    }
 
-                    if (vistas[t.first] != null) vistas[t.first] = vistas[t.first]?.not()
-
-                    vistas[t.second] = vistas[t.second]?.not()
-
-                    vistas[t.third] = vistas[t.third]?.not()
+                    puedeVolver = false
 
                     // Se actualizan las visibilidades de las fichas
                     refresh(fichas, vistas)
 
+                    // Resta a la cantidad de movimientos realizados
+                    --cantidadMovimientosRealizados
+                    movimientosNumero.text = cantidadMovimientosRealizados.toString()
+
+                    // Resta al puntaje
+                    puntaje -= 15
+                    viewPuntaje.text = puntaje.toString()
+
                     play(this, go_back)
+
+                    // Quitar sugerencia
+                    if (viewSugerencia != null) {
+                        quitarSugerencia(viewSugerencia)
+                    }
+
                 }
-
-                // Resta a la cantidad de movimientos realizados
-                --cantidadMovimientosRealizados
-                movimientosNumero.text = cantidadMovimientosRealizados.toString()
-
-                // Resta al puntaje
-                puntaje -= 15
-                viewPuntaje.text = puntaje.toString()
-
             }
         })
+
 
         reset.setOnClickListener(View.OnClickListener {
             for(i in vistas.keys){
@@ -260,7 +275,13 @@ class TableroCruz : AppCompatActivity() {
                             // Obtiene la ficha correspondiente la celda tocada
                             view1 = v as ImageView?
 
-                            play(this, select)
+                            // Evitar seleccionar espacios vacios
+                            if(vistas[view1] == false) {
+                                return@setOnTouchListener true
+                            }
+
+                            //MOMENTANEO
+                            //play(this, select)
 
                             // Inicia CountDown para la sugerencia
                             timeToSuggest.start()
@@ -280,7 +301,7 @@ class TableroCruz : AppCompatActivity() {
                             timeToSuggest.cancel()
 
                             // Llama a la función para ver si se come a la ficha o no
-                            verMovimientos(view1, view2, movimientos, vistas, pilaJugadas, this)
+                            puedeVolver = verMovimientos(view1, view2, movimientos, vistas, pilaJugadas, this)
 
                             // Quita la sugerencia de jugada
                             quitarSugerencia(viewSugerencia)
@@ -295,7 +316,6 @@ class TableroCruz : AppCompatActivity() {
                             movimientosNumero.text = cantidadMovimientosRealizados.toString()
 
                             if(isGameOver){
-
                                 play(this, game_over)
                             }
 
@@ -329,30 +349,24 @@ class TableroCruz : AppCompatActivity() {
             isGameOver = savedInstanceState.getBoolean("isGameOver")
 
             if(isGameOver){
-                Toast.makeText(applicationContext," GAME OVER ", Toast.LENGTH_LONG).show()
+                play(this, game_over)
             }
+
             var i: Int = 0
             for(key in vistas.keys){
-//                Log.i("HERE","===========LEYENDO==============")
-//                Log.i("HERE", i.toString())
-//                Log.i("KEY ===>", key.toString() )
-//                Log.i("VALOR ===>", savedInstanceState.getBoolean(key.toString()).toString())
                 vistas[key] = savedInstanceState.getBoolean(i.toString())
                 ++i
             }
 
-            refresh(fichas, vistas)
+            puedeVolver = savedInstanceState.getBoolean("puedeVolver")
 
-//          INTENTO DE SOLUCION A GUARDAR JUGADAS REALIZADAS (FIX ME)
-//
-//            var listJugadas = savedInstanceState.getIntegerArrayList("listJugadas")
-//            i = 0
-//            if (listJugadas != null && pilaJugadas.size == 0) {
-//                while(i < listJugadas.size){
-//                    pilaJugadas.push(Triple(findViewById(listJugadas[i]),findViewById(listJugadas[i+1]),findViewById(listJugadas[i+2])))
-//                    i+=3
-//                }
-//            }
+            if(pilaJugadas.isEmpty()){
+                pilaJugadas.push(findViewById(savedInstanceState.getInt("view1")))
+                pilaJugadas.push(findViewById(savedInstanceState.getInt("view2")))
+                pilaJugadas.push(findViewById(savedInstanceState.getInt("view3")))
+            }
+
+            refresh(fichas, vistas)
         }
 
     }
@@ -363,37 +377,18 @@ class TableroCruz : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
 
         var i: Int = 0
+
         for(entry in vistas.entries){
-//            Log.i("HERE","==========GUARDANDO===============")
-//            Log.i("HERE", i.toString())
-//            Log.i("KEY ===>", entry.key.toString() )
-//            Log.i("VALUE ===>", entry.value.toString())
             outState.putBoolean(i.toString(), entry.value!!)
             ++i
         }
-
-
-        // Intero de solucion a guardar jugadas realizadas (FIX ME)
-       /* val pilaJugadasAux: Stack<Triple<ImageView?, ImageView, ImageView>> = Stack()
-
-        // Dar vuelta el stack
-        while(!pilaJugadas.isEmpty()){
-            pilaJugadasAux.push(pilaJugadas.pop())
+        if(!pilaJugadas.isEmpty()){
+            outState.putInt("view1",pilaJugadas.pop().id)
+            outState.putInt("view2",pilaJugadas.pop().id)
+            outState.putInt("view3",pilaJugadas.pop().id)
         }
 
-        var auxTripe = Triple<ImageView?, ImageView?, ImageView?>(null,null,null)
-        var listJugadas =  ArrayList<Int>()
-
-        while(!pilaJugadasAux.isEmpty()){
-            auxTripe = pilaJugadasAux.pop()
-            listJugadas.add(auxTripe.first?.id!!)
-            listJugadas.add(auxTripe.second?.id!!)
-            listJugadas.add(auxTripe.third?.id!!)
-        }
-
-        outState.putIntegerArrayList("listJugadas",listJugadas)*/
-
-
+        outState.putBoolean("puedeVolver",puedeVolver)
         outState.putInt("cantidadMovimientosRealizados", cantidadMovimientosRealizados)
         outState.putInt("puntaje", puntaje)
         outState.putBoolean("isGameOver", isGameOver)
