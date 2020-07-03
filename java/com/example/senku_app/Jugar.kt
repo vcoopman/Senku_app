@@ -1,44 +1,39 @@
 package com.example.senku_app
 
-
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.Window
 
-
-class MainActivity : AppCompatActivity() {
-
+class Jugar : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.requestWindowFeature(Window.FEATURE_NO_TITLE)
         getSupportActionBar()?.hide()
 
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_jugar)
     }
 
-    fun lanzaJugar(view: View){
+    fun tableroCruz(view: View){
 
-        val i = Intent(this, Jugar::class.java)
+
+        resetValores()
+
+        val i = Intent(this, TableroCruz::class.java)
         startActivity(i)
 
+        play(this, R.raw.start)
     }
 
-    fun lanzaAyuda(view: View){
+    fun tableroPiramide(view: View){
 
-        val i = Intent(this, Ayuda::class.java)
+        resetValores()
+
+        val i = Intent(this, TableroPiramide::class.java)
         startActivity(i)
 
-    }
-
-    fun lanzaCreditos(view: View){
-
-        val i = Intent(this, Creditos::class.java)
-        startActivity(i)
-
+        play(this, R.raw.start)
     }
 }
-
-

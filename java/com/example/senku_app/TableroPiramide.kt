@@ -15,8 +15,12 @@ import java.util.*
 class TableroPiramide : AppCompatActivity() {
 
     var vistas = mutableMapOf<ImageView?, Boolean?>()
+
     //Stack para guardar jugadas realizadas
-    var pilaJugadas : Stack<Triple<ImageView?, ImageView, ImageView>> = Stack()
+    var pilaJugadas : Stack<ImageView> = Stack()
+
+    // Flag retroceso jugada
+    var puedeVolver: Boolean = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,7 +107,6 @@ class TableroPiramide : AppCompatActivity() {
 
         // A todas las fichas se le muestra la imagen "pin" con el color de fondo
         for (i in fichas) {
-
             i.setBackgroundColor(colorFondo)
             refresh(fichas,vistas)
         }
@@ -115,21 +118,16 @@ class TableroPiramide : AppCompatActivity() {
         // Variable para almacenar la view de la sugerencia jugada
         var viewSugerencia: ImageView? = null
 
-        // Timer para sugerencia -- Implementacion precaria
-
+        // Timer para sugerencia
         var timeToSuggest = object : CountDownTimer(5000, 1000) {
-
-            // Se muestra sugerencia al usuario
             override fun onFinish() {
+                // Se muestra sugerencia al usuario
                 if(view1 != null) {
                     viewSugerencia = mostrarSugerencia(view1!!, buscaMovimientosFichasVisibles(movimientos, buscarFichasVisibles(vistas)))
                 }
             }
-
             // No es utilizada
-            override fun onTick(millisUntilFinished: Long) {
-
-            }
+            override fun onTick(millisUntilFinished: Long) {}
         }
 
         // Variable auxiliar para saber si se realiza el primer toque o segundo toque en el tablero
@@ -137,36 +135,51 @@ class TableroPiramide : AppCompatActivity() {
 
         // Método onClickListener del botón para deshacer jugadas
         des.setOnClickListener(View.OnClickListener {
+            if(puedeVolver) {
+                var count = 3
+                // Si hay elementos en el stack
+                if (!pilaJugadas.isEmpty()) {
+                    while (count > 0) {
 
-            // Si hay elementos en el stack
-            if(!pilaJugadas.isNullOrEmpty()){
+                        // Saca el elemento top del stack y se le cambia la visibilidad
+                        val t = pilaJugadas.pop()
+                        if (vistas.containsKey(t)) {
+                            if (vistas[t] == true) {
+                                vistas[t] = false
+                            } else if (vistas[t] == false) {
+                                vistas[t] = true
+                            }
 
-                // Saca el elemento top del stack
-                var t = pilaJugadas.pop()
+                        }
+                        --count
+                    }
 
-                // Se cambia el estado de visibilidad de los tres elementos
-                if(t?.first != null) {
+                    // Vacia el stack, deberia ayudar al rendimiento
+                    while (!pilaJugadas.isEmpty()) {
+                        pilaJugadas.pop()
+                    }
 
-                    if (vistas[t.first] != null) vistas[t.first] = vistas[t.first]?.not()
-
-                    vistas[t.second] = vistas[t.second]?.not()
-
-                    vistas[t.third] = vistas[t.third]?.not()
+                    puedeVolver = false
 
                     // Se actualizan las visibilidades de las fichas
                     refresh(fichas, vistas)
 
+                    // Resta a la cantidad de movimientos realizados
+                    --cantidadMovimientosRealizados
+                    movimientosNumerop.text = cantidadMovimientosRealizados.toString()
+
+                    // Resta al puntaje
+                    puntaje -= 15
+                    viewPuntaje.text = puntaje.toString()
+
                     play(this, go_back)
+
+                    // Quitar sugerencia
+                    if (viewSugerencia != null) {
+                        quitarSugerencia(viewSugerencia)
+                    }
+
                 }
-
-                // Resta a la cantidad de movimientos realizados
-                --cantidadMovimientosRealizados
-                movimientosNumerop.text = cantidadMovimientosRealizados.toString()
-
-                // Resta al puntaje
-                puntaje -= 15
-                viewPuntaje.text = puntaje.toString()
-
             }
         })
 
@@ -202,7 +215,12 @@ class TableroPiramide : AppCompatActivity() {
                             // Obtiene la ficha correspondiente la celda tocada
                             view1 = v as ImageView?
 
-                            play(this, select)
+                            // Evitar seleccionar espacios vacios
+                            if(vistas[view1] == false) {
+                                return@setOnTouchListener true
+                            }
+//                            MOMENTANEO
+                           // play(this, select)
 
                             // Inicia CountDown para sugerencia
                             timeToSuggest.start()
@@ -222,7 +240,7 @@ class TableroPiramide : AppCompatActivity() {
                             timeToSuggest.cancel()
 
                             // Llama a la función para ver si se come a la ficha o no
-                            verMovimientos(view1, view2, movimientos, vistas, pilaJugadas, this)
+                            puedeVolver = verMovimientos(view1, view2, movimientos, vistas, pilaJugadas, this)
 
                             // Quita la sugerencia de jugada
                             quitarSugerencia(viewSugerencia)
@@ -236,9 +254,7 @@ class TableroPiramide : AppCompatActivity() {
                             // Actualiza numero de movimientos en pantalla
                             movimientosNumerop.text = cantidadMovimientosRealizados.toString()
 
-
                             if(isGameOver){
-
                                 play(this, game_over)
                             }
 
@@ -278,6 +294,15 @@ class TableroPiramide : AppCompatActivity() {
                 vistas[key] = savedInstanceState.getBoolean(i.toString())
                 ++i
             }
+
+            puedeVolver = savedInstanceState.getBoolean("puedeVolver")
+
+            if(pilaJugadas.isEmpty()){
+                pilaJugadas.push(findViewById(savedInstanceState.getInt("view1")))
+                pilaJugadas.push(findViewById(savedInstanceState.getInt("view2")))
+                pilaJugadas.push(findViewById(savedInstanceState.getInt("view3")))
+            }
+
             refresh(fichas, vistas)
         }
 
@@ -289,6 +314,12 @@ class TableroPiramide : AppCompatActivity() {
         for(entry in vistas.entries){
             outState.putBoolean(i.toString(), entry.value!!)
             ++i
+        }
+
+        if(!pilaJugadas.isEmpty()){
+            outState.putInt("view1",pilaJugadas.pop().id)
+            outState.putInt("view2",pilaJugadas.pop().id)
+            outState.putInt("view3",pilaJugadas.pop().id)
         }
 
         outState.putInt("cantidadMovimientosRealizados", cantidadMovimientosRealizados)
