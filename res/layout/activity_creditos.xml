@@ -24,6 +24,7 @@
         android:layout_height="wrap_content"
         android:text="Creadores:"
         android:textSize="20sp"
+        android:textStyle="bold"
         android:textAlignment="center"
         android:gravity="center_horizontal"
         app:layout_constraintLeft_toLeftOf="parent"
