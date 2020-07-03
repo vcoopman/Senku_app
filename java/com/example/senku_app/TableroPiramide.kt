@@ -219,8 +219,8 @@ class TableroPiramide : AppCompatActivity() {
                             if(vistas[view1] == false) {
                                 return@setOnTouchListener true
                             }
-//                            MOMENTANEO
-                           // play(this, select)
+
+                            play(this, select)
 
                             // Inicia CountDown para sugerencia
                             timeToSuggest.start()
