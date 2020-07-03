@@ -23,24 +23,24 @@
 
         />
 
-    <Button
+    <ImageButton
         android:id="@+id/cruz"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="tableroCruz"
-        android:text="Tablero Cruz"
         android:layout_marginTop="40dp"
+        android:onClick="tableroCruz"
+        android:src="@drawable/cruz_imagen"
         app:layout_constraintBottom_toTopOf="@id/piramide"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tableroSelectText" />
 
-    <Button
+    <ImageButton
         android:id="@+id/piramide"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="tableroPiramide"
-        android:text="Tablero Piramide"
+        android:src="@drawable/piramide_imagen"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cruz"
