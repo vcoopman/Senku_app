@@ -15,6 +15,8 @@ import java.util.*
 class TableroCruz : AppCompatActivity() {
 
     var vistas = mutableMapOf<ImageView?, Boolean?>()
+
+    //Stack para guardar jugadas realizadas
     var pilaJugadas : Stack<ImageView> = Stack()
 
     // Flag retroceso jugada
@@ -176,7 +178,6 @@ class TableroCruz : AppCompatActivity() {
         var viewSugerencia: ImageView? = null
 
         // Timer para sugerencia
-
         val timeToSuggest = object : CountDownTimer(5000, 1000) {
 
             // Se muestra sugerencia al usuario
@@ -291,9 +292,9 @@ class TableroCruz : AppCompatActivity() {
 
                             // Cambia la variable flag a false
                             false
+
                             // Si es el segundo toque en el tablero
                         } else {
-
                             // Obtiene la ficha de la celda tocada
                             view2 = v as ImageView?
 
@@ -322,7 +323,7 @@ class TableroCruz : AppCompatActivity() {
                             // Vuelve el color de fondo normal de las fichas
                             view1?.setBackgroundColor(colorFondo)
 
-                            //Actualiza visibilidad de las fichas
+                            //Actualiza visibilidad de las fichas en el tablero
                             refresh(fichas, vistas)
 
                             // Cambia la variable flag a true
